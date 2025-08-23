@@ -6,6 +6,10 @@
         return vtable_offset < this.readInt16(vtable) ? this.readInt16(vtable + vtable_offset) : 0;
     }
 ```
+pos开始，从后往前跳转pos处int32的位置<br> 
+read32(pos) 其实为vtable的长度<br>
+pos - read32(pos) 这个位置作为vtable查找的初始点<br> 
+offset为从初始点跳转的字节数<br> 
 __offset(pos, offset) 在 vtable 中查找字段，返回对象的偏移量，如果该字段不存在则返回 0。
 
 返回值：存储在(pos - 存储在offset处的int值)的int16值
@@ -18,7 +22,7 @@ __offset(pos, offset) 在 vtable 中查找字段，返回对象的偏移量，�
 __indirect(offset) 检索存储在“offset”处的相对偏移量
 
 返回值：offset + 存储在offset处的int值
-## __vector
+## __vector 位置
 ```javascript
     __vector(offset) {
         return offset + this.readInt32(offset) + constants_js_1.SIZEOF_INT; // data starts after the length
@@ -27,7 +31,7 @@ __indirect(offset) 检索存储在“offset”处的相对偏移量
 __vector(offset) 获取数组的开头，该数组的偏移量存储在此对象的“offset”处。
 
 返回值：offset + 存储在offset处的int值 + int字节数(4) (INT字节数是为了跳过vector_len数值)
-## __vector_len
+## __vector_len 数值
 ```javascript
     __vector_len(offset) {
         return this.readInt32(offset + this.readInt32(offset));
@@ -90,3 +94,7 @@ vector长度 length = __vector_len(b_pos + offset) <br/>
 vector_offset 每个vector元素的间隔 对象类型，string等为4，数据类型根据实际数据占用字节数，如int8为1，int16为2<br/>
 vector数据 index __vector(b_pos + offset) + vector_offset * index <br/>
 然后根据实际数据类型对应的方式构建数据
+
+### struct
+一般支持各种基础数值参数，int bool等<br>
+每个参数数值占用4个字节
